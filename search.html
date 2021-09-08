@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>查询平台</title>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdn.bootcss.com/vue/2.6.8/vue.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+</head>
+<body>
+<div id="app">
+
+  
+    <!-- 搜索与添加区域 -->
+    <el-row :gutter="15">
+      <el-col :span="12" :push="6">
+        <el-input placeholder="请输入订单号" v-model="id" clearable @clear="getUserList">
+          <el-button slot="append" icon="el-icon-search" @click="getUserList"></el-button>
+        </el-input>
+      </el-col>
+     
+    </el-row>
+    
+
+  <!-- 时间线 -->
+  <el-timeline>
+    <el-timeline-item v-for="(activity, index) in progressInfo" :key="index" :timestamp="activity.time">
+      {{activity.context}}
+    </el-timeline-item>
+  </el-timeline>
+
+</div>
+<script>
+new Vue({
+el: '#app',
+data: {
+  id:'',
+progressInfo:[
+],
+
+},
+methods: {
+  async getUserList(){
+      this.progressInfo=[]
+    var id1=this.GetUrlPara();
+   
+      var a=this.id?this.id:id1
+      var progressInfo=this.progressInfo
+      jQuery.ajax({
+        type:"GET",
+        url:'http://182.92.83.129/users/' + a,
+        
+        success:function(res){
+     
+      console.log(res)
+    
+                    
+                    if (!res) {
+                      if(a)
+                      {
+
+       return alert('未查询到该订单，请确认订单号是否正确', '提示', {
+          confirmButtonText: '确定',
+         
+        })
+                      }
+       else
+       return
+      }
+      const v = res
+      
+          var date1=v.record1.substring(0,19); 
+          date1= date1.replace(/-/g,'/'); 
+          if(Date.parse(new Date())-Date.parse(date1)>=0)
+          {
+            var str=v.record1
+            str =str.substring(20,str.length);
+            progressInfo.push({
+              context:str,
+               time:date1
+            })
+             var date2=v.record2.substring(0,19); 
+          date2 = date2.replace(/-/g,'/'); 
+          if(Date.parse(new Date())-Date.parse(date2)>=0)
+          {
+            var str=v.record2
+            str =str.substring(20,str.length);
+            progressInfo.push({
+              context:str,
+               time:date2
+            })
+             var date3=v.record3.substring(0,19); 
+          date3 = date3.replace(/-/g,'/'); 
+          if(Date.parse(new Date())-Date.parse(date3)>=0)
+          {
+            var str=v.record3
+            str =str.substring(20,str.length);
+            progressInfo.push({
+              context:str,
+               time:date3
+            })
+            var date4=v.record4.substring(0,19); 
+          date4 = date4.replace(/-/g,'/'); 
+          if(Date.parse(new Date())-Date.parse(date4)>=0)
+          {
+            var str=v.record4
+            str =str.substring(20,str.length);
+            progressInfo.push({
+              context:str,
+               time:date4
+            })
+             if(v.lastId){
+            var date = new Date()
+            date5=this.dateFormat("YYYY-mm-dd HH:MM", date)
+            var str=' UPS tracking number is '+v.lastId
+            progressInfo.push({
+              context:str,
+               time:date5
+            })
+          }
+          }
+          }
+          }
+          }
+         else{
+          
+           alert('订单正在处理中，暂无物流信息', '提示', {
+          confirmButtonText: '确定',
+         
+        })
+      }
+        },
+        error:function(res){
+           console.log("发生错误");
+        }
+      })
+      
+      
+               
+            
+   
+      
+     
+  },
+  dateFormat(fmt, date) {
+    let ret;
+    const opt = {
+        "Y+": date.getFullYear().toString(),        // 年
+        "m+": (date.getMonth() + 1).toString(),     // 月
+        "d+": date.getDate().toString(),            // 日
+        "H+": date.getHours().toString(),           // 时
+        "M+": date.getMinutes().toString(),         // 分
+        "S+": date.getSeconds().toString()          // 秒
+        // 有其他格式化字符需求可以继续添加，必须转化成字符串
+    };
+    for (let k in opt) {
+        ret = new RegExp("(" + k + ")").exec(fmt);
+        if (ret) {
+            fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+        };
+    };
+    return fmt;
+},
+GetUrlPara()
+　　{
+　　　　var url = document.location.toString();
+　　　　var arrUrl = url.split("?");
+
+　　　　var para = arrUrl[1];
+　　　　return para;
+　　}
+},
+mounted() {
+  this.getUserList()
+},
+})
+
+</script>
+<style>
+ 
+  .el-timeline{
+    margin-top: 30px;
+  }
+</style>
+</body>
+</html>
+
